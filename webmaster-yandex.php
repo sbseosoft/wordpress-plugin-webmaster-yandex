@@ -34,6 +34,8 @@ $wm = new WebmasterYandex();
 
 function wm_ya_db_install() {
     global $wpdb;
+    global $ya_wm_db_verstion;
+
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     $tableName = $wpdb->prefix . 'wm_ya_texts';
     $sql = "CREATE TABLE IF NOT EXISTS `{$tableName}` (
@@ -56,6 +58,8 @@ function wm_ya_db_install() {
             UNIQUE INDEX `date` (`date` DESC) );
           ";
     dbDelta($sql);
+    $ya_wm_db_verstion = '0.1';
+    add_option("ya_wm_db_verstion", $ya_wm_db_verstion);
 }
 
 function wm_ya_db_uninstall() {

@@ -13,6 +13,8 @@ Send your original texts to Yandex Webmaster service
 == Description ==
 You can send your original texts directly from your website interface without having to open Yandex Webmaster Tools every time.
 
+If you are experiencing difficulties installing or using this plugin please check video how to install it Here is video tutorial how to install and use this plugin: http://www.youtube.com/watch?v=jJ15I23KCKo&hd=1
+
 Yandex Webmaster service: http://webmaster.yandex.ru/
 Yandex: http://company.yandex.com/
 
@@ -29,9 +31,15 @@ Plugin developers and Sbseosoft are not affiliated with Yandex.
 Here is video tutorial how to install and use this plugin: http://www.youtube.com/watch?v=jJ15I23KCKo&hd=1
 
 == Changelog ==
+= 0.2 =
+* Added database version
+
 = 0.1 =
 * Initial release.
 
 == Upgrade Notice ==
+= 0.2 =
+* Minor update - added database version
+
 = 0.1 =
 * Initial release.
