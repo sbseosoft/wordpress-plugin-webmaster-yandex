@@ -1,4 +1,4 @@
-== Webmaster Yandex ==
+=== Webmaster Yandex ===
 Contributors: Sbseosoft
 Tags: yandex, webmaster, widget, Post, posts
 Official website: http://www.sbseosoft.com/development/web/wordpress-plugins/webmaster-yandex/
@@ -13,12 +13,14 @@ Send your original texts to Yandex Webmaster service
 == Description ==
 You can send your original texts directly from your website interface without having to open Yandex Webmaster Tools every time.
 
-If you are experiencing difficulties installing or using this plugin please check video how to install it Here is video tutorial how to install and use this plugin: http://www.youtube.com/watch?v=jJ15I23KCKo&hd=1
+If you are experiencing difficulties installing or using this plugin please check video below how to install it 
 
-Yandex Webmaster service: http://webmaster.yandex.ru/
-Yandex: http://company.yandex.com/
+[youtube http://www.youtube.com/watch?v=jJ15I23KCKo&hd=1] 
 
-Yandex is not responsible for this plugin in any way.
+[Yandex Webmaster service](http://webmaster.yandex.ru/)<br />
+[Official plugin page](http://www.sbseosoft.com/development/web/wordpress-plugins/webmaster-yandex/)
+
+Yandex is not responsible for this plugin in any way.<br />
 Plugin developers and Sbseosoft are not affiliated with Yandex.
 
 == Installation ==
@@ -28,7 +30,12 @@ Plugin developers and Sbseosoft are not affiliated with Yandex.
 4. Set your website name;
 5. Start to send texts to Yandex from any post page.
 
-Here is video tutorial how to install and use this plugin: http://www.youtube.com/watch?v=jJ15I23KCKo&hd=1
+Here is video tutorial how to install and use this plugin:<br />
+[youtube http://www.youtube.com/watch?v=jJ15I23KCKo&hd=1]
+
+== Screenshots ==
+1. How to send texts to Yandex Webmaster
+2. Plugin settings
 
 == Changelog ==
 = 0.2 =

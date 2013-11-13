@@ -19,7 +19,7 @@
  * Plugin Name: Webmaster Yandex
  * Plugin URI: http://www.sbseosoft.com/development/web/wordpress-plugins/webmaster-yandex/
  * Description: Add your website to Yandex Webmaster service. Send new text content to Yandex, to prevent it from stealing by others.
- * Version: 0.1
+ * Version: 0.2
  * Author: Sbseosoft
  * Author URI: http://www.sbseosoft.com/
  * License: GPLv2 or later
