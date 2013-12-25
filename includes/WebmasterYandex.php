@@ -57,6 +57,7 @@ class WebmasterYandex
     );
 
     public function __construct() {
+        $this->initLocalization();
         $this->addActions();
         $this->loadSettings();        
     }
@@ -211,7 +212,7 @@ class WebmasterYandex
         $this->_websiteIdNotSet = ($websiteId == 'none' or empty($websiteId));        
         $this->_yandexTokenNotSet = ($yandexToken == 'none' or empty($yandexToken));
     }
-
+    
     /**
      * Get information about text by post Id
      * 
@@ -242,11 +243,23 @@ class WebmasterYandex
     public function activationHook() {
         register_activation_hook(__FILE__, array($this, 'activate'));
     }
+    
+    public function initLocalization() {
+        $currentLocale = get_locale();
+        if (!empty($currentLocale)) {
+            $moFile = dirname(__FILE__) . "/../lang/" . $currentLocale . ".mo";
+            if (file_exists($moFile) and is_readable($moFile)) {
+                load_textdomain('wm_ya', $moFile);
+            }
+        }
+    }
 
     public function addActions() {
         add_action('admin_menu', array($this, 'adminOptions'));
-        add_action('admin_init', array($this, 'registerSettings'));    
+        add_action('admin_init', array($this, 'registerSettings'));   
+        add_action('admin_head', array($this, 'addGoogleChartsJs'));
         add_action('wp_ajax_wm_ya_add_text', array($this, 'ajaxAddTextToYandex'));
+        add_action('wp_ajax_wm_ya_dashboardChartData', array($this, 'getDataForDashboard'));
     }
     
     public function registerSettings() {
@@ -269,27 +282,27 @@ class WebmasterYandex
         // Set application id and password
         add_settings_section(
             'wm_ya_settings_section_app',
-            __('Application settings', 'wm_ya_app_settings_header'),
+            __('Application settings', 'wm_ya'),
             array($this, 'appSettingsAppCallback'),
             'webmaster_yandex_options_page'
         );  
         add_settings_field(
             self::PARAMETER_NAME_APP_ID,
-            __('Application ID', 'wm_ya_application_id'),
+            __('Application ID', 'wm_ya'),
             array($this, 'applicationIdCallback' ),
             'webmaster_yandex_options_page',
             'wm_ya_settings_section_app'
         );
         add_settings_field(
             self::PARAMETER_NAME_APP_PASSWORD,
-            __('Application password', 'wm_ya_application_password'),
+            __('Application password', 'wm_ya'),
             array($this, 'applicationPasswordCallback'),
             'webmaster_yandex_options_page',
             'wm_ya_settings_section_app'
         );
         add_settings_field(
             self::PARAMETER_YANDEX_TOKEN_CODE,
-            __('Token code', 'wm_ya_yandex_token_code'),
+            __('Token code', 'wm_ya'),
             array($this, 'yandexTokenFieldCallback'),
             'webmaster_yandex_options_page',
             'wm_ya_settings_section_app'
@@ -297,13 +310,13 @@ class WebmasterYandex
     }
     
     public function adminOptions() {
-        add_options_page(__('Webmaster Yandex settings', 'wm_ya_settings'), 'Webmaster Yandex',
+        add_options_page(__('Webmaster Yandex settings', 'wm_ya'), 'Webmaster Yandex',
                          'manage_options', 'webmaster_yandex_options_page',
                          array($this, 'showSettingsPage'));
         // on next release
-//        add_dashboard_page('Webmaster Yandex', 'Webmaster Yandex', 'manage_options',
-//                           'webmaster_yandex_dashboard', array($this, 'showAdminDashboard'));
-        add_meta_box('wm_ya_metabox_add_text', __('Send text to Yandex', 'wm_ya_send_text_to_yandex'),
+        add_dashboard_page('Webmaster Yandex', 'Webmaster Yandex', 'manage_options',
+                           'webmaster_yandex_dashboard', array($this, 'showAdminDashboard'));
+        add_meta_box('wm_ya_metabox_add_text', __('Send text to Yandex', 'wm_ya'),
                      array($this, 'metaboxSendTextsToYandexCallback'), 'post', 'advanced',
                      'high');
     }
@@ -315,7 +328,7 @@ class WebmasterYandex
      */
     public function metaboxSendTextsToYandexCallback() {
         if ($this->_websiteIdNotSet) {
-            print "<p>" . __('Set website Id in plugin settings page', 'wm_ya_set_website_id_in_settings') . "</p>";
+            print "<p>" . __('Set website Id in plugin settings page', 'wm_ya') . "</p>";
             return;
         }
         wp_register_script('webmaster_yandex_script', plugins_url('/../main.js', __FILE__), array('jquery'));
@@ -325,14 +338,14 @@ class WebmasterYandex
         $postDataDb = $this->getTextInfoFromDb($postId);
         
         if (!count($postDataDb)) {
-            print "<p id='wmYaTextSendDate'>" . __("You haven't sent this text to Yandex yet", 'wm_ya_havent_send_text_to_yandex') . "</p>";
+            print "<p id='wmYaTextSendDate'>" . __("You haven't sent this text to Yandex yet", 'wm_ya') . "</p>";
         } else {
             $obj = $postDataDb[0];
             $textSentDatetime = date('Y-m-d H:i:s', $obj->timestamp_added);
-            print "<p id='wmYaTextSendDate'>" . __('Text was sent at ', 'wm_ya_text_was_sent_at') . "{$textSentDatetime}</p>";
+            print "<p id='wmYaTextSendDate'>" . __('Text was sent at ', 'wm_ya') . "{$textSentDatetime}</p>";
         }
         
-        $str = "<a class='button button-primary' onclick='jQuery(Main.wmAddText);'>Send</a><div id='wmYaResultsTextSend'>";
+        $str = "<a class='button button-primary' onclick='jQuery(Main.wmAddText);'>" . __('Send', 'wm_ya') . "</a><div id='wmYaResultsTextSend'>";
         $str .= "</div><input type='hidden' id='wmYaCurrentPostId' value='{$postId}' />";
         $str .= "";
         print $str;
@@ -350,12 +363,12 @@ class WebmasterYandex
             if ($postLength > self::YANDEX_TEXT_MAX_LENGTH) {
                 $responseObj->error = 1;
                 $responseObj->errorText = __('Text length is more than Yandex allows to send, your text length is: ',
-                                             'wm_ya_text_length_is_more_than_yandex') . $postLength;
+                                             'wm_ya') . $postLength;
             }
             if ($postLength < self::YANDEX_TEXT_MIN_LENGTH) {
                 $responseObj->error = 1;
                 $responseObj->errorText = __('Text length is less than Yandex allows to send, your text length is: ',
-                                             'wm_ya_text_length_is_less_than_yandex') . $postLength;
+                                             'wm_ya') . $postLength;
             }
             $textsSendData = $this->getTextsNumSentToday();
             if (count($textsSendData)) {
@@ -363,7 +376,7 @@ class WebmasterYandex
                 if ($textsSendQuantity > self::YANDEX_TEXT_MAX_PER_DAY) {
                     $responseObj->error = 1;
                     $responseObj->errorText = __('Maximum number of sent texts were reached for today',
-                                                 'wm_ya_maximum_number_of_send_texts_reached');
+                                                 'wm_ya');
                 }
             }
             if (property_exists($responseObj, 'error')) {
@@ -394,7 +407,7 @@ class WebmasterYandex
             }
         }
         $responseObj->error = 1;
-        $responseObj->errorText = __('Unable to fetch data for post Id provided', 'wm_ya_unable_to_fetch_data_for_post_id');
+        $responseObj->errorText = __('Unable to fetch data for post Id provided', 'wm_ya');
         print json_encode($responseObj);
         die;
     }
@@ -402,16 +415,16 @@ class WebmasterYandex
     public function appSettingsAppCallback() {
         if ($this->_appIdOrPasswordEmpty) {
             $str =  "<p style='color:red;'>" 
-                    . __('Application Id or application password not defined, set them below', 'wm_ya_app_id_or_password_not_defined')
+                    . __('Application Id or application password not defined, set them below', 'wm_ya')
                     . "</p>";
         } else {
-            $str = "<p>" . __('Edit application Id or application password in fields below', 'wm_ya_edit_app_id_password_header') . "</p>";
+            $str = "<p>" . __('Edit application Id or application password in fields below', 'wm_ya') . "</p>";
         }
         print $str;
     }
     
     public function appSettingsTokenCallback() {
-        print "<p>" . __('Get code from Yandex and paste it below to get new token', 'wm_ya_get_code_from_yandex_header') . "</p>";
+        print "<p>" . __('Get code from Yandex and paste it below to get new token', 'wm_ya') . "</p>";
     }
     
     public function applicationPasswordCallback() {
@@ -459,8 +472,7 @@ class WebmasterYandex
         }
         return false;
     }
-    
-//    public function 
+
     /**
      * 
      * Display settings page and validate post data
@@ -470,7 +482,8 @@ class WebmasterYandex
         wp_register_script('webmaster_yandex_script', plugins_url('/../main.js', __FILE__), array('jquery'));
         wp_enqueue_script('webmaster_yandex_script');
         wp_enqueue_script('jquery');
-
+        
+        $curlEnabled = in_array('curl', get_loaded_extensions());
         $options = get_option('webmaster_yandex_options_app');        
         if (isset($options['webmaster_yandex_app_id']) and isset($options['webmaster_yandex_app_password'])) {
             update_option(self::PARAMETER_NAME_APP_ID, sanitize_text_field($options['webmaster_yandex_app_id']));
@@ -494,7 +507,10 @@ class WebmasterYandex
                 
 //            }
         }
-        print "<div class='wrap'><h2>" . __('Yandex Webmaster settings', 'yandex_webmaster_settings') . "</h2>" . screen_icon();
+        print "<div class='wrap'><h2>" . __('Yandex Webmaster settings', 'wm_ya') . "</h2>" . screen_icon();
+        if (!$curlEnabled) {
+            print "<div style='color: red'>" . __('Curl module is not enabled, plugin will not work', 'wm_ya') . "</div>";
+        }
         print "<form method='post' action='options.php'>\n";
         settings_fields('webmaster_yandex_app');
         do_settings_sections('webmaster_yandex_options_page');
@@ -503,14 +519,14 @@ class WebmasterYandex
             $popupUrl = $this->getYandexCodePopupUrl();
             $popupTitle = "Yandex Code";
             print "<p><a href='#' onclick='jQuery(Main.showPopup(\"$popupUrl\", \"$popupTitle\"));'>" 
-                  . __('Get token code', 'wm_ya_get_token_code') . "</a>";
+                  . __('Get token code', 'wm_ya') . "</a>";
             if (!$this->_yandexTokenNotSet and strlen($this->getYandexToken()) > 10) {
                 print "<p>Yandex token:&nbsp;" . $this->getYandexToken() . "&nbsp;" .
-                      __('expires', 'wm_ya_expires') . "&nbsp;" . date('Y-m-d H:i:s', $this->getYandexTokenExpire()) . "</p>";
+                      __('expires', 'wm_ya') . "&nbsp;" . date('Y-m-d H:i:s', $this->getYandexTokenExpire()) . "</p>";
                 // Website settings
                 $existingWebsites = $this->getWebmasterWebsites();
                 if (count($existingWebsites)) {
-                    print __('Set your website', 'wm_ya_set_your_website') . ": <select name='webmaster_yandex_options_app[website_id]'>\n";
+                    print __('Set your website', 'wm_ya') . ": <select name='webmaster_yandex_options_app[website_id]'>\n";
                     $selected = '';
                     foreach ($existingWebsites as $k => $wData) {
                         if ($this->_websiteIdNotSet) {
@@ -521,7 +537,7 @@ class WebmasterYandex
                         }
                         $state = $this->websiteVerificationStatuses[$wData['state']]['short'];
                         print "<option value={$wData['website_id']} {$selected}>{$wData['name']} " . 
-                              "(" . __('Status in Yandex', 'wm_ya_status_in_yandex') . " - {$state})</option>";
+                              "(" . __('Status in Yandex', 'wm_ya') . " - {$state})</option>";
                         $selected = '';
                     }
                     print "</select>";
@@ -533,17 +549,47 @@ class WebmasterYandex
         print '</form></div>';
     }
     
+    public function addGoogleChartsJs() {
+        echo '<script type="text/javascript" src="https://www.google.com/jsapi"></script>' . 
+             '<script type="text/javascript">google.load("visualization", "1", {packages:["corechart"]});</script>';
+    }
+    
+    /**
+     * Admin dashboard
+     */
     public function showAdminDashboard() {
         $yandexLogoUrl = plugins_url('/../yandex-logo.png', __FILE__);
         print "<p><a href='http://company.yandex.ru/about/main/' target='_blank'>" . 
               "<img src='{$yandexLogoUrl}' border='0' style='max-width: 120px;'/></a></p>";
         if ($this->_websiteIdNotSet) {
             print "<div id='wrap'><p>" . 
-                  __('Your website is not verified in Yandex webmaster service or not set in settings', 'wm_ya_website_is_not_verified_or_added') .
+                  __('Your website is not verified in Yandex webmaster service or not set in settings', 'wm_ya') .
                   "</p></div>";
+            return;
         }
+        print "<div id='wmYaDashboardChart'></div>";
+        wp_register_script('webmaster_yandex_script', plugins_url('/../main.js', __FILE__), array('jquery'));
+        wp_enqueue_script('webmaster_yandex_script');
+        wp_enqueue_script('jquery');
+        print '<script type="text/javascript">jQuery(window).load(function() {jQuery(Main.adminDashboardDrawChart())} )</script>';
     }
-
+    
+    public function getDataForDashboard() {
+        if ($this->_websiteIdNotSet) {
+            print json_encode(array('error' => 1, 'errorText' => 'Website is not set'));
+            die;
+        }
+        $robotCrawledPages = $this->getRobotStatsHistory('crawled-urls');
+        $incomingLinks = $this->getRobotStatsHistory('incoming-links');
+        $indexedUrls = $this->getRobotStatsHistory('indexed-urls');
+        $excludedUrls = $this->getRobotStatsHistory('excluded-urls');
+        
+        $finalResult = array('crawled' => $robotCrawledPages, 'incoming' => $incomingLinks,
+                             'indexed' => $indexedUrls, 'excluded' => $excludedUrls ,'error' => 0);
+        print json_encode($finalResult);
+        die;
+        
+    }
 
     public function getPage($curlOptions = array()) {
         $ch = curl_init();
@@ -669,5 +715,26 @@ class WebmasterYandex
             return $result;
         }
         return array('error' => true, 'yandexError' => 'unknown');
+    }
+    
+    public function getRobotStatsHistory($type = 'crawled-urls') {
+        $availableTypes = array('tic', 'crawled-urls', 'incoming-links', 'indexed-urls', 'excluded-urls');
+        if (!in_array($type, $availableTypes)) {
+            $type = 'crawled-urls';
+        }
+        $url = "/api/v2/hosts/" . $this->getWebsiteId() . "/history/{$type}/";
+        $response = $this->performYandexWebmasterApiRequest($url);
+        $result = array();
+        if ($response['info']['http_code'] == 200 and strlen($response['result']) > 0) {
+            $dom = new DOMDocument();
+            if ($dom->loadXML($response['result'])) {
+                foreach ($dom->getElementsByTagName('value') as $value) {
+                    $date = $value->getAttribute('date');
+                    $num = $value->nodeValue;
+                    $result[] = array('date'=> $date, 'num' => $num);
+                }
+            }
+        }
+        return $result;
     }
 }

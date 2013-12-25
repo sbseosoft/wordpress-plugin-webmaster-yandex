@@ -3,7 +3,7 @@ Contributors: Sbseosoft
 Tags: yandex, webmaster, widget, Post, posts
 Official website: http://www.sbseosoft.com/development/web/wordpress-plugins/webmaster-yandex/
 Requires at least: 3.0.1
-Tested up to: 3.7.1
+Tested up to: 3.8
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -38,6 +38,12 @@ Here is video tutorial how to install and use this plugin:<br />
 2. Plugin settings
 
 == Changelog ==
+= 0.4 =
+* Added charts to admin dashboard - indexed, crawled, incoming links, excluded URLs.
+
+= 0.3 =
+* Russian language added
+
 = 0.2 =
 * Added database version
 
@@ -45,6 +51,12 @@ Here is video tutorial how to install and use this plugin:<br />
 * Initial release.
 
 == Upgrade Notice ==
+= 0.4 =
+* Added charts to admin dashboard - indexed, crawled, incoming links, excluded URLs.
+
+= 0.3 =
+* Russian language added
+
 = 0.2 =
 * Minor update - added database version
 
