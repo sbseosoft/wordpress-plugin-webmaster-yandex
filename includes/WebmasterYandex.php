@@ -414,9 +414,14 @@ class WebmasterYandex
 
     public function appSettingsAppCallback() {
         if ($this->_appIdOrPasswordEmpty) {
+            $screenShotURL = plugins_url('/../oauth-yandex-screenshot.png', __FILE__);
             $str =  "<p style='color:red;'>" 
-                    . __('Application Id or application password not defined, set them below', 'wm_ya')
-                    . "</p>";
+                    . __('Application Id or application password not defined, create them at ' . 
+                         '<a href="https://oauth.yandex.ru/client/new">oAuth Yandex</a>, or use <a href="https://oauth.yandex.ru/client/my">exising</a>, and set values below.', 'wm_ya')
+                    . "</p>" .
+                    "<p><a href='{$screenShotURL}' target='_blank'><img src='{$screenShotURL}' border='0' style='max-height: 200px;' /></a></p>" .
+                    "<p style='color:red;'><b>Callback URI:</b> https://oauth.yandex.ru/verification_code</p>" .
+                    '<p><iframe width="640" height="360" src="//www.youtube.com/embed/jJ15I23KCKo?rel=0" frameborder="0" allowfullscreen></iframe></p>';
         } else {
             $str = "<p>" . __('Edit application Id or application password in fields below', 'wm_ya') . "</p>";
         }
@@ -529,9 +534,6 @@ class WebmasterYandex
                     print __('Set your website', 'wm_ya') . ": <select name='webmaster_yandex_options_app[website_id]'>\n";
                     $selected = '';
                     foreach ($existingWebsites as $k => $wData) {
-                        if ($this->_websiteIdNotSet) {
-                            print "<option value='0' selected='selected'>---</option>";
-                        }
                         if ($wData['website_id'] == $this->getWebsiteId()) {
                             $selected = "selected='selected'";
                         }
