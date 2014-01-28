@@ -39,7 +39,7 @@ Here is video tutorial how to install and use this plugin:<br />
 
 == Changelog ==
 = 0.5 =
-Screenshot and URL to create oAuth app added
+* Screenshot and URL to create oAuth app added
 
 = 0.4 =
 * Added charts to admin dashboard - indexed, crawled, incoming links, excluded URLs.
@@ -54,6 +54,9 @@ Screenshot and URL to create oAuth app added
 * Initial release.
 
 == Upgrade Notice ==
+= 0.5 =
+* Screenshot and URL to create oAuth app added
+
 = 0.4 =
 * Added charts to admin dashboard - indexed, crawled, incoming links, excluded URLs.
 
